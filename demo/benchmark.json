@@ -1,5 +1,5 @@
 {
-  "static_merge_mae": 1.379,
-  "routed_mae": 0.0,
-  "error_reduction_pct": 100.0
+  "static_merge_mae": 1.399,
+  "routed_mae": 0.276,
+  "error_reduction_pct": 80.2
 }

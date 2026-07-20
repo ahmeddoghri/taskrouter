@@ -13,17 +13,17 @@ python taskrouter.py
 ```
 ```json
 {
-  "static_merge_mae": 1.379,
-  "routed_mae": 0.0,
-  "error_reduction_pct": 100.0
+  "static_merge_mae": 1.399,
+  "routed_mae": 0.276,
+  "error_reduction_pct": 80.2
 }
 ```
 
-Average the outputs of three specialist functions together and you get `static_merge_mae` — a compromise nobody asked for. Compare the input against each expert's known task prototype and route to the nearest one instead, and error drops to zero: `routed_mae` — a 100% error reduction, because when the right expert exists, using it beats blending it with two wrong ones.
+Average the outputs of three specialist functions together on noisy task-specific inputs and you get `static_merge_mae` — a compromise nobody asked for. Compare the input against each expert's known task prototype and route to the nearest one instead, and error drops to `routed_mae` — an 80.2% reduction, because when the right expert exists, using it beats blending it with two wrong ones, even after the labels themselves get noisy.
 
 ## How it works
 
-Three toy "experts" are three different functions (linear, quadratic, sinusoidal), each anchored to its own prototype input value. Every task sample is drawn near one expert's prototype with some jitter. The static-merge baseline averages all three experts' outputs regardless of which task the input actually came from — this is what weight-averaging model-merging does in spirit. The router instead measures distance from the input to each prototype and picks the nearest expert's output outright, with no training step and no gradient anywhere in the routing decision — just similarity-based selection, made explicit.
+Three toy "experts" are three different functions (linear, quadratic, sinusoidal), each anchored to its own prototype input value. Every task sample is drawn near one expert's prototype with jitter, and the label itself carries observation noise, so a perfect router still can't hit zero error — it has to actually beat the noise floor, not just recover an exact answer. The static-merge baseline averages all three experts' outputs regardless of which task the input actually came from — this is what weight-averaging model-merging does in spirit. The router instead measures distance from the input to each prototype and picks the nearest expert's output outright, with no training step and no gradient anywhere in the routing decision — just similarity-based selection, made explicit.
 
 ## Run it
 

@@ -7,7 +7,7 @@ def run(seed=23):
     rng=random.Random(seed); static=route=0
     for _ in range(240):
         task=rng.randrange(3); x=PROTOS[task]+rng.uniform(-.45,.45)
-        y=EXPERTS[task](x)
+        y=EXPERTS[task](x)+rng.gauss(0,.35)
         merged=sum(f(x) for f in EXPERTS)/len(EXPERTS)
         chosen=min(range(3), key=lambda k:abs(x-PROTOS[k]))
         static+=abs(merged-y); route+=abs(EXPERTS[chosen](x)-y)
