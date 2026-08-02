@@ -40,6 +40,32 @@ The test compares routed selection against the static-merge baseline and require
 
 This is an educational research reproduction using three toy expert functions rather than real fine-tuned models. It is not a clinical, diagnostic, production model-serving, or safety-critical system, and it makes no claim about real LLM or vision-model merging results. The point is to make one mechanism — training-free similarity routing beats static weight averaging — measurable without hiding it behind a checkpoint.
 
+## Does the routing advantage survive real ambiguity?
+
+The published scenario uses `jitter=.45` with prototypes spaced 2.0 apart,
+so every sample stays well inside its own prototype's region: checked
+directly, nearest-prototype routing is correct 100% of the time, on every
+seed tested. That's not circular — `routed_mae` still depends on genuine
+label noise — but the published number never actually has to face a case
+where the router could get confused about which expert to use.
+
+```bash
+python eval_v2.py
+```
+```
+tuning (40 seeds):  jitter=1.5  mean_reduction_pct=70.9  min_reduction_pct=60.7  mean_routing_accuracy=0.774
+holdout (30 seeds): jitter=1.5  mean_reduction_pct=71.0  min_reduction_pct=64.0  mean_routing_accuracy=0.773
+```
+
+Pushing the jitter to 1.5 (prototype regions now genuinely overlap) drops
+routing accuracy to ~77% — real, seed-varying ambiguity, not the
+published scenario's guaranteed 100%. Even there, the error reduction
+holds a strong mean of ~71% across 40 tuning seeds and a disjoint 30-seed
+holdout (evaluated once), never dropping below 60.7%. The routing
+advantage isn't a fragile artifact of one easy setup: it survives real
+uncertainty about which expert to pick. `taskrouter.py` is unmodified;
+this is a robustness check, not a bug fix.
+
 ## Research basis
 
 - [The 2026 TR-Merging work on similarity-based, training-free model routing](https://openreview.net/forum?id=4S0yZPVxex)
