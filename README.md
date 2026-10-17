@@ -1,5 +1,9 @@
 # taskrouter
 
+[![tests](https://github.com/ahmeddoghri/taskrouter/actions/workflows/tests.yml/badge.svg)](https://github.com/ahmeddoghri/taskrouter/actions/workflows/tests.yml) [![case study](https://img.shields.io/badge/case%20study-adoghri.com-e0703e)](https://adoghri.com/project-38.html)
+
+![taskrouter](docs/cover.jpg)
+
 **Training-free expert routing for model merging, because averaging specialists averages away their edge.**
 
 Merge three specialists into one average model and you haven't built a generalist — you've built three people at once talking over each other, none of them finishing a sentence. A model fine-tuned for task A and a model fine-tuned for task B, weight-averaged together, doesn't do A well and B well. It does both mediocrely, which on a task-specific input is strictly worse than just picking the right expert and getting out of the way. taskrouter doesn't merge weights at all — it looks at the input, figures out which expert it resembles, and routes to that one.
