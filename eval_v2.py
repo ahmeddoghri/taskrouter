@@ -15,6 +15,7 @@ from taskrouter import EXPERTS, PROTOS
 def run_at_jitter(seed, jitter):
     rng = random.Random(seed)
     static = route = correct = 0
+    fixed = [0.0] * len(EXPERTS)
     for _ in range(240):
         task = rng.randrange(3)
         x = PROTOS[task] + rng.uniform(-jitter, jitter)
@@ -24,11 +25,18 @@ def run_at_jitter(seed, jitter):
         correct += chosen == task
         static += abs(merged - y)
         route += abs(EXPERTS[chosen](x) - y)
+        for k, f in enumerate(EXPERTS):
+            fixed[k] += abs(f(x) - y)
+    best_fixed = min(fixed)
     return {
         "static_merge_mae": round(static / 240, 3),
         "routed_mae": round(route / 240, 3),
         "error_reduction_pct": round(100 * (1 - route / static), 1),
         "routing_accuracy": round(correct / 240, 3),
+        # Static merging is worse than always using the single best expert,
+        # so that is the baseline routing has to beat to mean anything.
+        "best_fixed_expert_mae": round(best_fixed / 240, 3),
+        "reduction_vs_best_fixed_pct": round(100 * (1 - route / best_fixed), 1),
     }
 
 
@@ -36,12 +44,15 @@ def summarize(seeds, jitter):
     results = [run_at_jitter(seed, jitter) for seed in seeds]
     reductions = [r["error_reduction_pct"] for r in results]
     accuracies = [r["routing_accuracy"] for r in results]
+    vs_fixed = [r["reduction_vs_best_fixed_pct"] for r in results]
     return {
         "n": len(seeds),
         "jitter": jitter,
         "mean_reduction_pct": round(st.mean(reductions), 1),
         "min_reduction_pct": min(reductions),
         "mean_routing_accuracy": round(st.mean(accuracies), 3),
+        "mean_reduction_vs_best_fixed_pct": round(st.mean(vs_fixed), 1),
+        "min_reduction_vs_best_fixed_pct": min(vs_fixed),
     }
 
 

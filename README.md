@@ -57,18 +57,28 @@ where the router could get confused about which expert to use.
 python eval_v2.py
 ```
 ```
-tuning (40 seeds):  jitter=1.5  mean_reduction_pct=70.9  min_reduction_pct=60.7  mean_routing_accuracy=0.774
-holdout (30 seeds): jitter=1.5  mean_reduction_pct=71.0  min_reduction_pct=64.0  mean_routing_accuracy=0.773
+tuning (40 seeds):  jitter=1.5  vs merge: mean 70.9% (min 60.7)  vs best fixed expert: mean 59.4% (min 51.9)  routing_accuracy=0.774
+holdout (30 seeds): jitter=1.5  vs merge: mean 71.0% (min 64.0)  vs best fixed expert: mean 59.2% (min 52.4)  routing_accuracy=0.773
 ```
 
 Pushing the jitter to 1.5 (prototype regions now genuinely overlap) drops
-routing accuracy to ~77% — real, seed-varying ambiguity, not the
+routing accuracy to ~77%: real, seed-varying ambiguity, not the
 published scenario's guaranteed 100%. Even there, the error reduction
 holds a strong mean of ~71% across 40 tuning seeds and a disjoint 30-seed
 holdout (evaluated once), never dropping below 60.7%. The routing
 advantage isn't a fragile artifact of one easy setup: it survives real
 uncertainty about which expert to pick. `taskrouter.py` is unmodified;
 this is a robustness check, not a bug fix.
+
+### Static merging is a weak baseline, so beat the strong one
+
+Averaging all three experts is worse than just always using the single best
+one: at the published setting, static merge scores 1.399 MAE while always
+calling the sine expert scores 0.588. So "80.2% less error than merging" is
+measured against a baseline you would never ship. Against the best fixed
+expert, routing cuts error by **53%** at the published setting and by
+**59%** (never below 52%) under heavy overlap. Smaller than 80%, still a
+large and honest gain, and it's the number to quote.
 
 ## Research basis
 
